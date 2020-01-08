@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>滑动门组件</title>
+    <style>
+        #box{
+            border: 1px solid darkgray;
+            height: 450px;
+            overflow: hidden;
+            position: relative;
+            margin: 20px auto;
+        }
+        img{
+            float: left;
+            position: absolute;
+            height: 450px;
+            border-left: 1px solid darkgray;
+            box-sizing: border-box;
+        }
+        #first_img{
+            width: 600px;
+            border-left: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="box">
+        <img src="imgs/imgs1.jpg" alt="" id="first_img">
+        <img src="imgs/imgs2.jpg" alt="">
+        <img src="imgs/imgs3.jpg" alt="">
+        <img src="imgs/imgs4.jpg" alt="">
+    </div>
+</body>
+
+</html>
+<SCript>
+    window.onload=function(){
+        var box=document.getElementById("box");
+        var img=document.getElementsByTagName("img");
+        //单张图片宽度
+        var imgWidth=img[0].offsetWidth;
+        //露出的宽度
+        var exposeWidth=160;
+        //设置容器总宽度
+        var boxWidth=imgWidth+exposeWidth*(img.length-1)
+        box.style.width=boxWidth+"px";
+        //设置图片初始位置
+        for(var i=1,len=img.length;i<len;i++){
+            img[i].pos=img[i].style.left=imgWidth+exposeWidth*(i-1)+"px";
+        }
+        function openDoor(el,translate){
+            var begin=parseInt(el.pos);
+            var end=begin-translate;
+            var iSpeed=10;
+            setTimeout(function(){
+                el.style.left=parseInt(el.style.left)-iSpeed+"px"; //为什么不用begin？每次的初始位置会变
+                iSpeed*=1.5;  //没有这句话就是匀速运动
+                if(parseInt(el.style.left)<=end){
+                    el.style.left=end+"px";
+                }else{
+                    setTimeout(arguments.callee,25); //定时器有名字可以直接调用，没名字，就用原生js方法arguments.callee
+                }
+            },25);
+        };
+        function closeDoor(el,translate){
+            var begin=parseInt(el.pos)-translate; //关门默认情况是张开的
+            var end=begin+translate; //这里可以直接写var end=parseInt(el.pos);
+            var iSpeed=100;
+            setTimeout(function(){
+                el.style.left=parseInt(el.style.left)+iSpeed+"px"; //为什么不用begin？每次的初始位置会变
+                iSpeed=Math.ceil(iSpeed*0.7); //没有这句话就是匀速运动
+                if(parseInt(el.style.left)>=end){
+                    el.style.left=end+"px";
+                }else{
+                    setTimeout(arguments.callee,25); //定时器有名字可以直接调用，没名字，就用原生js方法arguments.callee
+                }
+            },25);
+        };
+        var translate=imgWidth-exposeWidth;
+        for(var i=0,len=img.length;i<len;i++){
+            (function(i){
+                img[i].onmouseover=function(){
+                    //开门 自己和自己左边的全部循环到
+                    for(var j=1;j<=i;j++){
+                        openDoor(img[j],translate);
+                    }
+                    //关门 自己右边的全部循环到
+                    for(var j=i+1;j<img.length;j++){
+                        closeDoor(img[j],translate);
+                    }
+                };
+            })(i);
+        }
+    };
+</SCript>
